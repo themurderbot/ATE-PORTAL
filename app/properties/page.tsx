@@ -119,8 +119,7 @@ export default function PropertiesPage() {
 
                     git add .
 git commit -m "remove device status from properties"
-git push
-npx vercel --prod
+
                     }}>
                       <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                         <div style={{
