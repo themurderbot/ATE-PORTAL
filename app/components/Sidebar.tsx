@@ -17,7 +17,7 @@ const navItems = [
   ]},
   { section: { ar: 'الدعم', en: 'SUPPORT' }, items: [
     { id: 'docs',  ar: 'المستندات المطلوبة',  en: 'Required Documents', icon: '📎', href: '/docs' },
-    { id: 'maint', ar: 'طلبات الصيانة',      en: 'Maintenance',        icon: '🔧', href: '/maintenance' },
+    { id: 'maint', ar: 'طلبات التركيب',      en: 'INQUIRIES',        icon: '🔧', href: '/maintenance' },
     { id: 'prof',  ar: 'حسابي',              en: 'My Account',         icon: '👤', href: '/profile' },
   ]},
 ]

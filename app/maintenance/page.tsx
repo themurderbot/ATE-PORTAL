@@ -56,7 +56,7 @@ export default function MaintenancePage() {
   return (
     <div dir={dir} style={{ fontFamily:'Tajawal,Arial,sans-serif', minHeight:'100vh', background:'#060c14', color:'#e0f0ff' }}>
       <Topbar title="طلبات التركيب" titleEn="Installation Requests" />
-      <div style={{ padding:'24px', maxWidth:'800px' }}>
+      <div style={{ padding:'24px', maxWidth:'100%' }}>
 
         {/* Header */}
         <div style={{ fontSize:'20px', fontWeight:900, marginBottom:'24px' }}>
