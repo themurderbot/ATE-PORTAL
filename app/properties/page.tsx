@@ -117,12 +117,10 @@ export default function PropertiesPage() {
                       </div>
                     </div>
 
-                    {/* ASE Device Status */}
-                    <div style={{
-                      display:'flex', alignItems:'center', justifyContent:'space-between',
-                      padding:'10px 14px', borderRadius:'8px',
-                      background:devSt.bg, border:`1px solid ${devSt.color}33`,
-                      marginBottom:'12px',
+                    git add .
+git commit -m "remove device status from properties"
+git push
+npx vercel --prod
                     }}>
                       <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                         <div style={{
