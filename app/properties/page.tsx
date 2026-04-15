@@ -8,14 +8,12 @@ type Property = {
   id: string; property_name: string; district: string
   property_type: string; floors: number; city: string
 }
-type Device = { id: string; property_id: string; status: string }
-type Cert   = { property_id: string; expiry_date: string; status: string }
+type Cert = { property_id: string; expiry_date: string; status: string }
 
 export default function PropertiesPage() {
   const { t, dir } = useLang()
-  const [props, setProps]   = useState<Property[]>([])
-  const [devices, setDevices] = useState<Device[]>([])
-  const [certs, setCerts]   = useState<Cert[]>([])
+  const [props, setProps] = useState<Property[]>([])
+  const [certs, setCerts] = useState<Cert[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,13 +22,11 @@ export default function PropertiesPage() {
       if (!user) return
       const { data: cl } = await supabase.from('clients').select('id').eq('email', user.email).single()
       if (!cl) return
-      const [{ data: p }, { data: d }, { data: c }] = await Promise.all([
+      const [{ data: p }, { data: c }] = await Promise.all([
         supabase.from('properties').select('*').eq('client_id', cl.id).order('property_name'),
-        supabase.from('devices').select('id, property_id, status'),
         supabase.from('certificates').select('property_id, expiry_date, status').eq('client_id', cl.id),
       ])
       if (p) setProps(p)
-      if (d) setDevices(d)
       if (c) setCerts(c)
       setLoading(false)
     }
@@ -41,19 +37,11 @@ export default function PropertiesPage() {
     commercial:'🏢', residential:'🏠', industrial:'🏭', government:'🏛️'
   }
 
-  const deviceStatus: Record<string,{ color:string; bg:string; ar:string; en:string }> = {
-    active:  { color:'#00e676', bg:'rgba(0,230,118,.12)',  ar:'نشط',       en:'Active'     },
-    fault:   { color:'#ff3040', bg:'rgba(255,48,64,.12)',  ar:'عطل',       en:'Fault'      },
-    offline: { color:'#6090b0', bg:'rgba(96,144,176,.12)', ar:'غير متصل', en:'Offline'    },
-    alarm:   { color:'#ffc200', bg:'rgba(255,194,0,.12)',  ar:'إنذار',     en:'Alarm'      },
-  }
-
   return (
     <div dir={dir} style={{ fontFamily:'Tajawal,Arial,sans-serif', minHeight:'100vh', background:'#060c14', color:'#e0f0ff' }}>
       <Topbar title="عقاراتي" titleEn="My Properties" />
       <div style={{ padding:'24px' }}>
 
-        {/* Header */}
         <div style={{ marginBottom:'24px' }}>
           <div style={{ fontSize:'20px', fontWeight:900, color:'#e0f0ff' }}>
             🏢 {t('عقاراتي','My Properties')}
@@ -74,12 +62,7 @@ export default function PropertiesPage() {
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:'16px' }}>
             {props.map(p => {
-              // جهاز ASE الخاص بالعقار
-              const device = devices.find(d => d.property_id === p.id)
-              const devSt  = device ? (deviceStatus[device.status] ?? deviceStatus.offline) : deviceStatus.offline
-
-              // شهادة العقار
-              const cert     = certs.find(c => c.property_id === p.id)
+              const cert = certs.find(c => c.property_id === p.id)
               const daysLeft = cert?.expiry_date
                 ? Math.ceil((new Date(cert.expiry_date).getTime() - Date.now()) / 86400000)
                 : null
@@ -87,14 +70,13 @@ export default function PropertiesPage() {
               return (
                 <div key={p.id} style={{
                   background:'#0e1f33', borderRadius:'14px',
-                  border:`1px solid ${devSt.color}22`,
+                  border:'1px solid rgba(26,48,80,.8)',
                   overflow:'hidden', transition:'border-color .2s',
                 }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = devSt.color + '55')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = devSt.color + '22')}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = '#0a80ff44')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(26,48,80,.8)')}
                 >
-                  {/* Top accent */}
-                  <div style={{ height:'3px', background:devSt.color }} />
+                  <div style={{ height:'3px', background:'linear-gradient(90deg,#0a80ff,#0055cc)' }} />
 
                   <div style={{ padding:'20px' }}>
                     {/* Icon + Name */}
@@ -117,26 +99,7 @@ export default function PropertiesPage() {
                       </div>
                     </div>
 
-                    git add .
-git commit -m "remove device status from properties"
-
-                    }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                        <div style={{
-                          width:'8px', height:'8px', borderRadius:'50%',
-                          background:devSt.color,
-                          boxShadow:`0 0 6px ${devSt.color}`,
-                        }} />
-                        <span style={{ fontSize:'12px', color:'#a0c0d8' }}>
-                          {t('جهاز ASE','ASE Device')}
-                        </span>
-                      </div>
-                      <span style={{ fontSize:'12px', fontWeight:700, color:devSt.color }}>
-                        {t(devSt.ar, devSt.en)}
-                      </span>
-                    </div>
-
-                    {/* Certificate expiry */}
+                    {/* Certificate */}
                     <div style={{
                       display:'flex', alignItems:'center', justifyContent:'space-between',
                       padding:'10px 14px', borderRadius:'8px',
