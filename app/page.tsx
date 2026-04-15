@@ -22,10 +22,11 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const [{ data: cl }, { data: inv }, { data: cr }] = await Promise.all([
-        supabase.from('clients').select('*').eq('email', user.email).single(),
-        supabase.from('invoices').select('*').eq('status', 'pending').order('due_date').limit(3),
-        supabase.from('certificates').select('*, properties(property_name)').in('status', ['active','expiring_soon']).order('expiry_date').limit(4),
+      const { data: cl } = await supabase.from('clients').select('*').eq('email', user.email!).single()
+      
+      const [{ data: inv }, { data: cr }] = await Promise.all([
+        supabase.from('invoices').select('*').eq('client_id', cl?.id || '').eq('status', 'pending').order('due_date').limit(3),
+        supabase.from('certificates').select('*, properties(property_name)').eq('client_id', cl?.id || '').in('status', ['active','expiring_soon']).order('expiry_date').limit(4),
       ])
 
       if (cl) setClient(cl)
