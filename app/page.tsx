@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
-import Topbar from '../components/Topbar'
-import { useLang } from '../lib/LangContext'
+import { supabase } from './lib/supabase'
+import Topbar from './components/Topbar'
+import { useLang } from './lib/LangContext'
 import { useRouter } from 'next/navigation'
 
 type Invoice = { id: string; invoice_code: string; amount: number; status: string; due_date: string }
