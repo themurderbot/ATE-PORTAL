@@ -5,7 +5,7 @@ import { LangProvider } from '../lib/LangContext'
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isLogin  = pathname === '/login'
+  const isLogin  = pathname === '/login' || pathname === '/'
 
   if (isLogin) {
     return <LangProvider>{children}</LangProvider>
