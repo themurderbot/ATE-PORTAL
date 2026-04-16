@@ -47,7 +47,7 @@ export default function Sidebar() {
   async function handleLogout() {
     setLoggingOut(true)
     await supabase.auth.signOut()
-    window.location.href = '/login'
+    window.location.href = 'https://ate-landing.vercel.app'
   }
 
   const S: React.CSSProperties = {
