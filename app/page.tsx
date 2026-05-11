@@ -3,39 +3,35 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import Topbar from './components/Topbar'
 import { useLang } from './lib/LangContext'
+import { useAuth } from './lib/AuthCache'
 import { useRouter } from 'next/navigation'
 
 type Invoice = { id: string; invoice_code: string; amount: number; status: string; due_date: string }
 type Cert    = { id: string; cert_ref: string; expiry_date: string; status: string; properties?: { property_name: string } }
-type Client  = { id: string; company_name: string; email: string; phone: string }
 
 export default function DashboardPage() {
   const { t, dir } = useLang()
   const router = useRouter()
-  const [client, setClient]     = useState<Client | null>(null)
+  const { client, loading: authLoading } = useAuth()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [certs, setCerts]       = useState<Cert[]>([])
   const [loading, setLoading]   = useState(true)
 
   useEffect(() => {
+    if (authLoading) return
+    if (!client) { router.push('/login'); return }
+
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
-
-      const { data: cl } = await supabase.from('clients').select('*').eq('email', user.email!).single()
-      
       const [{ data: inv }, { data: cr }] = await Promise.all([
-        supabase.from('invoices').select('*').eq('client_id', cl?.id || '').eq('status', 'pending').order('due_date').limit(3),
-        supabase.from('certificates').select('*, properties(property_name)').eq('client_id', cl?.id || '').in('status', ['active','expiring_soon']).order('expiry_date').limit(4),
+        supabase.from('invoices').select('*').eq('client_id', client!.id).eq('status', 'pending').order('due_date').limit(3),
+        supabase.from('certificates').select('*, properties(property_name)').eq('client_id', client!.id).in('status', ['active','expiring_soon']).order('expiry_date').limit(4),
       ])
-
-      if (cl) setClient(cl)
       if (inv) setInvoices(inv)
       if (cr)  setCerts(cr)
       setLoading(false)
     }
     load()
-  }, [])
+  }, [client, authLoading])
 
   const statusColor: Record<string,string> = { active:'#00e676', expiring_soon:'#ffc200', expired:'#ff3040', pending:'#ffc200', paid:'#00e676', overdue:'#ff3040' }
   const statusLabel: Record<string,string> = {
@@ -44,7 +40,7 @@ export default function DashboardPage() {
     paid: t('مدفوعة','Paid'), overdue: t('متأخرة','Overdue'),
   }
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', background:'#060c14', color:'#6090b0', fontFamily:'Tajawal,sans-serif', fontSize:'16px' }}>
       ⏳ {t('جارٍ التحميل...','Loading...')}
     </div>
