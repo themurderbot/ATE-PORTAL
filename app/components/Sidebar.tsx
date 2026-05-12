@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useLang } from '../lib/LangContext'
 import { supabase } from '../lib/supabase'
 
@@ -63,9 +64,9 @@ export default function Sidebar() {
     <aside style={S}>
       {/* Logo */}
       <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(26,48,80,0.8)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg,#ff3040,#ff6820)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', boxShadow: '0 0 14px rgba(255,48,64,0.4)' }}>🔔</div>
+        <img src="/icon-192.png" alt="Weqayah" style={{ width: '36px', height: '36px', borderRadius: '9px', flexShrink: 0, boxShadow: '0 0 14px rgba(255,48,64,0.25)' }} />
         <div>
-          <div style={{ fontFamily: 'Rajdhani,sans-serif', fontSize: '17px', fontWeight: 700, letterSpacing: '3px', color: '#e0f0ff' }}>ATE</div>
+          <div style={{ fontFamily: 'Rajdhani,sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '2px', color: '#e0f0ff' }}>Weqayah</div>
           <div style={{ fontSize: '9px', color: '#304560', letterSpacing: '1px' }}>CLIENT PORTAL</div>
         </div>
       </div>
@@ -78,7 +79,7 @@ export default function Sidebar() {
               {lang === 'ar' ? section.section.ar : section.section.en}
             </div>
             {section.items.map(item => (
-              <a key={item.id} href={item.href} onClick={() => setActive(item.id)} style={{
+              <Link key={item.id} href={item.href} onClick={() => setActive(item.id)} style={{
                 display: 'flex', alignItems: 'center', gap: '10px',
                 padding: '9px 18px', cursor: 'pointer',
                 color: active === item.id ? '#e0f0ff' : 'rgba(224,240,255,.45)',
@@ -90,7 +91,7 @@ export default function Sidebar() {
               }}>
                 <span style={{ fontSize: '15px', width: '18px', textAlign: 'center' }}>{item.icon}</span>
                 <span style={{ flex: 1 }}>{lang === 'ar' ? item.ar : item.en}</span>
-              </a>
+              </Link>
             ))}
           </div>
         ))}
