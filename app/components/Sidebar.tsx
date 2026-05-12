@@ -1,16 +1,22 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useLang } from '../lib/LangContext'
 import { supabase } from '../lib/supabase'
+
+interface SidebarProps {
+  isMobile?: boolean
+  isOpen?: boolean
+  onClose?: () => void
+}
 
 const navItems = [
   { section: { ar: 'الرئيسية', en: 'MAIN' }, items: [
     { id: 'dash',  ar: 'لوحة التحكم',       en: 'Dashboard',         icon: '📊', href: '/' },
   ]},
   { section: { ar: 'العقارات', en: 'PROPERTIES' }, items: [
-    { id: 'props', ar: 'عقاراتي',            en: 'My Properties',     icon: '🏢', href: '/properties', badge: '' },
+    { id: 'props', ar: 'عقاراتي',            en: 'My Properties',     icon: '🏢', href: '/properties' },
   ]},
   { section: { ar: 'العقود والمالية', en: 'FINANCE' }, items: [
     { id: 'inv',   ar: 'الفواتير والمدفوعات', en: 'Invoices & Payments', icon: '💳', href: '/invoices' },
@@ -23,9 +29,8 @@ const navItems = [
   ]},
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ isMobile = false, isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname()
-  const router   = useRouter()
   const { lang, setLang, t } = useLang()
   const [active, setActive] = useState('dash')
   const [loggingOut, setLoggingOut] = useState(false)
@@ -51,7 +56,23 @@ export default function Sidebar() {
     window.location.href = 'https://ate-landing.vercel.app'
   }
 
-  const S: React.CSSProperties = {
+  const handleNavClick = (id: string) => {
+    setActive(id)
+    if (isMobile && onClose) onClose()
+  }
+
+  const S: React.CSSProperties = isMobile ? {
+    width: '280px',
+    background: '#0a1628',
+    borderLeft: '1px solid rgba(26,48,80,0.8)',
+    display: 'flex', flexDirection: 'column',
+    position: 'fixed', top: 0, right: 0,
+    height: '100vh', zIndex: 1000,
+    transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+    transition: 'transform 0.3s ease',
+    overflow: 'hidden',
+    boxShadow: isOpen ? '-12px 0 40px rgba(0,0,0,0.6)' : 'none',
+  } : {
     width: '240px', flexShrink: 0,
     background: '#0a1628',
     borderRight: '1px solid rgba(26,48,80,0.8)',
@@ -65,10 +86,16 @@ export default function Sidebar() {
       {/* Logo */}
       <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(26,48,80,0.8)', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <img src="/icon-192.png" alt="Weqayah" style={{ width: '36px', height: '36px', borderRadius: '9px', flexShrink: 0, boxShadow: '0 0 14px rgba(255,48,64,0.25)' }} />
-        <div>
+        <div style={{ flex: 1 }}>
           <div style={{ fontFamily: 'Rajdhani,sans-serif', fontSize: '18px', fontWeight: 700, letterSpacing: '2px', color: '#e0f0ff' }}>Weqayah</div>
           <div style={{ fontSize: '9px', color: '#304560', letterSpacing: '1px' }}>CLIENT PORTAL</div>
         </div>
+        {isMobile && (
+          <button onClick={onClose} aria-label="إغلاق" style={{
+            background: 'transparent', border: 'none', color: '#8aa0b8',
+            fontSize: 24, cursor: 'pointer', padding: '4px 8px', lineHeight: 1,
+          }}>×</button>
+        )}
       </div>
 
       {/* Nav */}
@@ -79,7 +106,7 @@ export default function Sidebar() {
               {lang === 'ar' ? section.section.ar : section.section.en}
             </div>
             {section.items.map(item => (
-              <Link key={item.id} href={item.href} onClick={() => setActive(item.id)} style={{
+              <Link key={item.id} href={item.href} onClick={() => handleNavClick(item.id)} style={{
                 display: 'flex', alignItems: 'center', gap: '10px',
                 padding: '9px 18px', cursor: 'pointer',
                 color: active === item.id ? '#e0f0ff' : 'rgba(224,240,255,.45)',
