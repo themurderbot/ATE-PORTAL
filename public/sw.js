@@ -1,5 +1,6 @@
 // Weqayah PWA Service Worker
-const CACHE_VERSION = 'weqayah-v1';
+// v2: stale-while-revalidate for instant navigation
+const CACHE_VERSION = 'weqayah-v2';
 const STATIC_CACHE = CACHE_VERSION + '-static';
 const DYNAMIC_CACHE = CACHE_VERSION + '-dynamic';
 
@@ -13,7 +14,6 @@ const PRECACHE_URLS = [
   '/offline.html'
 ];
 
-// Install: precache shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
@@ -22,7 +22,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate: cleanup old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -37,7 +36,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch routing
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -58,19 +56,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML pages: network-first with offline fallback
+  // HTML pages: stale-while-revalidate (instant navigation!)
   const acceptHeader = request.headers.get('accept') || '';
   if (request.mode === 'navigate' || acceptHeader.includes('text/html')) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
-          return response;
-        })
-        .catch(() =>
-          caches.match(request).then((cached) => cached || caches.match('/offline.html'))
-        )
+      caches.match(request).then((cached) => {
+        const fetchPromise = fetch(request)
+          .then((response) => {
+            if (response && response.status === 200) {
+              const clone = response.clone();
+              caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          })
+          .catch(() => cached || caches.match('/offline.html'));
+        // Return cached immediately if available, otherwise wait for network
+        return cached || fetchPromise;
+      })
     );
     return;
   }
@@ -90,7 +92,6 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Listen for skipWaiting messages from clients
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
