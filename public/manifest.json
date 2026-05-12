@@ -1,0 +1,19 @@
+{
+  "name": "Weqayah",
+  "short_name": "Weqayah | وقاية",
+  "description": "منصة إدارة أجهزة إنذار الحريق",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060c14",
+  "theme_color": "#060c14",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
