@@ -19,7 +19,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!client) { router.push('/login'); return }
+    if (!client) { window.location.href = 'https://ate-landing.vercel.app'; return }
 
     async function load() {
       const [{ data: inv }, { data: cr }] = await Promise.all([
